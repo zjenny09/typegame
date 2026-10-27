@@ -11,7 +11,13 @@
 	- [x] 第 2 关 · 单词：荷叶上随机出现 6 个外研社三年级词汇（带中文释义）
 	- [x] 严格从左到右逐片跳跃，不能跨片；打错提示并重输当前荷叶，不回退、不刷新
 	- [x] 不设限时；跳到右岸结算胜利（按失误数给 1～3 星）
-- [ ] 小游戏二 / 三 / 四：敬请期待
+- [x] 小游戏二：警察抓小偷
+	- [x] 第 1 关 · 字母：小偷每 2.4 秒跑一步，警察起始落后 3 步
+	- [x] 第 2 关 · 单词：小偷每 7 秒跑一步，警察起始落后 2 步
+	- [x] 小偷匀速逃跑，每跑一步留下一块目标牌；打对一个警察追一步
+	- [x] 打字快可提前追上（提前获胜）；小偷跑到逃脱点（字母 22 步 / 单词 11 步）则失败
+	- [x] 镜头横向滚动跟随，双视差街景；胜负均按失误数结算星星
+- [ ] 小游戏三 / 四：敬请期待
 
 ## 运行
 
@@ -27,6 +33,7 @@ headless 全流程冒烟测试（模拟键盘通关字母关与单词关，含�
 
 ```
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_frog_river.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_cop_chase.gd
 ```
 
 输出 `SMOKE PASS` 即通过，失败时以非 0 退出码结束。
@@ -39,6 +46,9 @@ scenes/
   frog_river/
     frog_river_menu.tscn       小青蛙过河 · 关卡选择
     frog_river.tscn            小青蛙过河 · 主玩法
+  cops_robber/
+    cop_chase_menu.tscn        警察抓小偷 · 关卡选择
+    cop_chase.tscn             警察抓小偷 · 主玩法
 scripts/
   game_session.gd              跨场景会话状态（静态字段）
   word_bank.gd                 词库与随机抽词
@@ -47,8 +57,12 @@ scripts/
     frog_river_menu.gd
     frog_river.gd              主玩法：输入判定 / 跳跃 / 胜利结算（自绘场景）
     star_row.gd                结算星星控件
+  cops_robber/
+    cop_chase_menu.gd
+    cop_chase.gd               主玩法：匀速追逐 / 打对追一步 / 滚动镜头（自绘场景）
 tests/
-  smoke_frog_river.gd          headless 冒烟测试
+  smoke_frog_river.gd          小青蛙过河 headless 冒烟测试
+  smoke_cop_chase.gd           警察抓小偷 headless 冒烟测试
 assets/fonts/                  ZCOOL KuaiLe（中文）、PatrickHand（拉丁字母），均 OFL 许可
 ```
 
@@ -59,6 +73,16 @@ assets/fonts/                  ZCOOL KuaiLe（中文）、PatrickHand（拉丁�
 - 不能跨荷叶跳跃，只能按从左到右的顺序
 - 打错：红牌提示并清空重输当前荷叶，不退回前一片，也不刷新目标
 - 通关后按失误数结算星星：0 失误 3 星、≤2 失误 2 星、其余 1 星
+
+## 玩法规则（警察抓小偷）
+
+- 横向马路，小偷在前面匀速逃跑，警察在后面追；镜头跟随警察，当前目标牌始终可见
+- 小偷跑出屏幕时右缘显示“小偷在前方 N 步”提示
+- 小偷每跑一步在路上留一块字母 / 单词牌；从左到右依次打对，打对一个警察追一步
+- 追上小偷（警察位置 ≥ 小偷位置）即胜利，提前追上同样获胜
+- 小偷跑到逃脱点则失败（字母关 22 步、单词关 11 步）
+- 字母关：小偷 2.4 秒/步、起始落后 3 步；单词关：7 秒/步、起始落后 2 步
+- 打错记失误并清空重输当前目标；胜利按失误数结算星星（标准同上），失败不给星
 
 ## 词库来源
 

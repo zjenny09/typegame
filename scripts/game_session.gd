@@ -8,3 +8,6 @@ enum FrogLevel {
 
 ## 小青蛙过河当前选择的关卡（1 字母 / 2 单词）。
 static var frog_level: int = FrogLevel.LETTERS
+
+## 警察抓小偷当前选择的关卡（1 字母 / 2 单词）。
+static var cop_level: int = FrogLevel.LETTERS

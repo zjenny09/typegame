@@ -4,12 +4,13 @@ extends Control
 
 const UI_FONT := preload("res://assets/fonts/ZCOOLKuaiLe-Regular.ttf")
 const FROG_MENU_SCENE := "res://scenes/frog_river/frog_river_menu.tscn"
+const COP_MENU_SCENE := "res://scenes/cops_robber/cop_chase_menu.tscn"
 
 const GAMES: Array = [
-	{"title": "小青蛙过河", "subtitle": "字母与单词 · 两个关卡", "scene": FROG_MENU_SCENE, "available": true},
-	{"title": "？？？", "subtitle": "敬请期待", "scene": "", "available": false},
-	{"title": "？？？", "subtitle": "敬请期待", "scene": "", "available": false},
-	{"title": "？？？", "subtitle": "敬请期待", "scene": "", "available": false},
+	{"title": "小青蛙过河", "subtitle": "字母与单词 · 两个关卡", "icon": "frog", "scene": FROG_MENU_SCENE, "available": true},
+	{"title": "警察抓小偷", "subtitle": "字母与单词 · 两个关卡", "icon": "badge", "scene": COP_MENU_SCENE, "available": true},
+	{"title": "？？？", "subtitle": "敬请期待", "icon": "lock", "scene": "", "available": false},
+	{"title": "？？？", "subtitle": "敬请期待", "icon": "lock", "scene": "", "available": false},
 ]
 
 const STEP := TAU / 4.0
@@ -174,10 +175,13 @@ func _draw_card(index: int) -> void:
 
 	var icon_center := rect.position + Vector2(rect.size.x * 0.5, rect.size.y * 0.34)
 	draw_circle(icon_center, 92 * s, Color(0.93, 0.96, 0.88, alpha))
-	if game["available"]:
-		_draw_frog_icon(icon_center, s, alpha)
-	else:
-		_draw_lock_icon(icon_center, s, alpha)
+	match str(game["icon"]):
+		"frog":
+			_draw_frog_icon(icon_center, s, alpha)
+		"badge":
+			_draw_badge_icon(icon_center, s, alpha)
+		_:
+			_draw_lock_icon(icon_center, s, alpha)
 
 	var title: String = game["title"]
 	var title_size := int(38 * s)
@@ -211,6 +215,29 @@ func _draw_frog_icon(center: Vector2, s: float, alpha: float) -> void:
 	draw_arc(center + Vector2(0, 4 * s), 16 * s, 0.35, PI - 0.35, 12, dark, maxf(2.0, 3.0 * s))
 	draw_circle(center + Vector2(-34 * s, 0), 7 * s, Color(1, 0.6, 0.6, 0.55 * alpha))
 	draw_circle(center + Vector2(34 * s, 0), 7 * s, Color(1, 0.6, 0.6, 0.55 * alpha))
+
+
+func _draw_badge_icon(center: Vector2, s: float, alpha: float) -> void:
+	var gold := Color(0.95, 0.78, 0.2, alpha)
+	var navy := Color(0.22, 0.32, 0.5, alpha)
+	var top := center.y - 46.0 * s
+	var mid := center.y + 8.0 * s
+	var bottom := center.y + 50.0 * s
+	var half_w := 54.0 * s
+	var pts := PackedVector2Array([
+		Vector2(center.x - half_w, top),
+		Vector2(center.x + half_w, top),
+		Vector2(center.x + half_w, mid),
+		Vector2(center.x, bottom),
+		Vector2(center.x - half_w, mid),
+	])
+	draw_colored_polygon(pts, gold)
+	var star_pts := PackedVector2Array()
+	for k in 10:
+		var angle := -PI / 2.0 + k * PI / 5.0
+		var r := (22.0 if k % 2 == 0 else 9.5) * s
+		star_pts.push_back(center + Vector2(0, -8 * s) + Vector2(cos(angle), sin(angle)) * r)
+	draw_colored_polygon(star_pts, navy)
 
 
 func _draw_lock_icon(center: Vector2, s: float, alpha: float) -> void:
