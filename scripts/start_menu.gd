@@ -5,11 +5,12 @@ extends Control
 const UI_FONT := preload("res://assets/fonts/ZCOOLKuaiLe-Regular.ttf")
 const FROG_MENU_SCENE := "res://scenes/frog_river/frog_river_menu.tscn"
 const COP_MENU_SCENE := "res://scenes/cops_robber/cop_chase_menu.tscn"
+const SNOW_MENU_SCENE := "res://scenes/snowball/snow_fight_menu.tscn"
 
 const GAMES: Array = [
 	{"title": "小青蛙过河", "subtitle": "字母与单词 · 两个关卡", "icon": "frog", "scene": FROG_MENU_SCENE, "available": true},
 	{"title": "警察抓小偷", "subtitle": "字母与单词 · 两个关卡", "icon": "badge", "scene": COP_MENU_SCENE, "available": true},
-	{"title": "？？？", "subtitle": "敬请期待", "icon": "lock", "scene": "", "available": false},
+	{"title": "打雪球", "subtitle": "字母与单词 · 两个关卡", "icon": "snow", "scene": SNOW_MENU_SCENE, "available": true},
 	{"title": "？？？", "subtitle": "敬请期待", "icon": "lock", "scene": "", "available": false},
 ]
 
@@ -180,6 +181,8 @@ func _draw_card(index: int) -> void:
 			_draw_frog_icon(icon_center, s, alpha)
 		"badge":
 			_draw_badge_icon(icon_center, s, alpha)
+		"snow":
+			_draw_snowflake_icon(icon_center, s, alpha)
 		_:
 			_draw_lock_icon(icon_center, s, alpha)
 
@@ -238,6 +241,18 @@ func _draw_badge_icon(center: Vector2, s: float, alpha: float) -> void:
 		var r := (22.0 if k % 2 == 0 else 9.5) * s
 		star_pts.push_back(center + Vector2(0, -8 * s) + Vector2(cos(angle), sin(angle)) * r)
 	draw_colored_polygon(star_pts, navy)
+
+
+func _draw_snowflake_icon(center: Vector2, s: float, alpha: float) -> void:
+	var col := Color(0.5, 0.7, 0.9, alpha)
+	for k in 6:
+		var dir := Vector2(cos(k * PI / 3.0), sin(k * PI / 3.0))
+		var tip := center + dir * 56.0 * s
+		draw_line(center, tip, col, 5.0 * s)
+		var base := center + dir * 34.0 * s
+		draw_line(base, base + dir.rotated(PI / 5.0) * 16.0 * s, col, 3.5 * s)
+		draw_line(base, base + dir.rotated(-PI / 5.0) * 16.0 * s, col, 3.5 * s)
+	draw_circle(center, 7.0 * s, col)
 
 
 func _draw_lock_icon(center: Vector2, s: float, alpha: float) -> void:

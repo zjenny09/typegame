@@ -129,6 +129,27 @@ const WORDS: Array = [
 ]
 
 
+## 随机抽取互不构成前缀关系的词条（同屏多目标时保证输入无歧义）。
+static func pick_words_no_prefix_conflict(count: int, max_length: int = 8) -> Array:
+	var out: Array = []
+	var guard := 0
+	while out.size() < count and guard < 800:
+		guard += 1
+		var entry: Array = WORDS[randi() % WORDS.size()]
+		var w: String = entry[0]
+		if w.length() > max_length:
+			continue
+		var ok := true
+		for other in out:
+			var ow: String = other[0]
+			if ow.begins_with(w) or w.begins_with(ow):
+				ok = false
+				break
+		if ok:
+			out.append(entry)
+	return out
+
+
 ## 随机抽取 [param count] 个互不重复、长度不超过 [param max_length] 的词条。
 static func pick_words(count: int, max_length: int = 8) -> Array:
 	var pool: Array = []

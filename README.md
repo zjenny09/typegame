@@ -17,7 +17,13 @@
 	- [x] 小偷匀速逃跑，每跑一步留下一块目标牌；打对一个警察追一步
 	- [x] 打字快可提前追上（提前获胜）；小偷跑到逃脱点（字母 22 步 / 单词 11 步）则失败
 	- [x] 镜头横向滚动跟随，双视差街景；胜负均按失误数结算星星
-- [ ] 小游戏三 / 四：敬请期待
+- [x] 小游戏三：打雪球
+	- [x] 第 1 关 · 字母：击碎 20 个雪球获胜，雪球约 8 秒落地
+	- [x] 第 2 关 · 单词：击碎 12 个雪球获胜（外研社词汇，同屏词互不为前缀）
+	- [x] 雪球从顶部按节奏先后出现并匀速下落，同屏不超过 5 个，越打节奏越快
+	- [x] 输入自动匹配以其开头的雪球（匹配部分绿色高亮），打完整字母/单词即击碎
+	- [x] 多个相同目标击碎最低最危险的；接近地面红圈警示；任一雪球落地即失败
+- [ ] 小游戏四：敬请期待
 
 ## 运行
 
@@ -34,6 +40,7 @@ headless 全流程冒烟测试（模拟键盘通关字母关与单词关，含�
 ```
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_frog_river.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_cop_chase.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_snow_fight.gd
 ```
 
 输出 `SMOKE PASS` 即通过，失败时以非 0 退出码结束。
@@ -49,6 +56,9 @@ scenes/
   cops_robber/
     cop_chase_menu.tscn        警察抓小偷 · 关卡选择
     cop_chase.tscn             警察抓小偷 · 主玩法
+  snowball/
+    snow_fight_menu.tscn       打雪球 · 关卡选择
+    snow_fight.tscn            打雪球 · 主玩法
 scripts/
   game_session.gd              跨场景会话状态（静态字段）
   word_bank.gd                 词库与随机抽词
@@ -60,9 +70,12 @@ scripts/
   cops_robber/
     cop_chase_menu.gd
     cop_chase.gd               主玩法：匀速追逐 / 打对追一步 / 滚动镜头（自绘场景）
+  snowball/
+    snow_fight.gd              主玩法：节奏生成 / 自动匹配击碎 / 落地判负（自绘场景）
 tests/
   smoke_frog_river.gd          小青蛙过河 headless 冒烟测试
   smoke_cop_chase.gd           警察抓小偷 headless 冒烟测试
+  smoke_snow_fight.gd          打雪球 headless 冒烟测试
 assets/fonts/                  ZCOOL KuaiLe（中文）、PatrickHand（拉丁字母），均 OFL 许可
 ```
 
@@ -83,6 +96,15 @@ assets/fonts/                  ZCOOL KuaiLe（中文）、PatrickHand（拉丁�
 - 小偷跑到逃脱点则失败（字母关 22 步、单词关 11 步）
 - 字母关：小偷 2.4 秒/步、起始落后 3 步；单词关：7 秒/步、起始落后 2 步
 - 打错记失误并清空重输当前目标；胜利按失误数结算星星（标准同上），失败不给星
+
+## 玩法规则（打雪球）
+
+- 雪球从顶部按节奏先后出现并匀速下落，同屏最多 5 个；击碎越多，出现节奏越快
+- 直接敲键盘：输入序列自动匹配以其开头的雪球，匹配部分绿色高亮
+- 打完整字母 / 单词即击碎；多个相同目标击碎位置最低（最危险）的那个
+- 单词关同屏词汇互不构成前缀，保证输入无歧义
+- 任一雪球落到雪地即失败；击碎目标数量（字母 20 / 单词 12）即胜利
+- 胜利按失误数结算星星（标准同前），失败不给星
 
 ## 词库来源
 
