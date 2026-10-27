@@ -74,6 +74,17 @@ func _run_letters_level() -> void:
 	if not failed:
 		_check(game.win_layer.visible, "通关后应显示胜利界面")
 		_check(game.mistakes == 1, "字母关应恰好 1 次失误，实际 %d" % game.mistakes)
+		# 键盘链路：结算面板回车应触发“再来一次”
+		var enter := InputEventKey.new()
+		enter.keycode = KEY_ENTER
+		enter.physical_keycode = KEY_ENTER
+		enter.pressed = true
+		Input.parse_input_event(enter)
+		await process_frame
+		await process_frame
+		_check(not game.win_layer.visible, "回车应触发再来一次（结算隐藏）")
+		_check(game.state == game.State.PLAYING, "回车后应重新开始")
+		_check(game.next_target == 0, "重开后应从第一片荷叶开始")
 	game.queue_free()
 	await process_frame
 

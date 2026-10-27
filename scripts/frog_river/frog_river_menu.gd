@@ -1,5 +1,6 @@
 extends Control
 ## 小青蛙过河：关卡选择页（第 1 关字母 / 第 2 关单词）。
+## 全键盘操作：A/D、方向键切换关卡，回车进入，Esc 返回主菜单。
 
 const UI_FONT := preload("res://assets/fonts/ZCOOLKuaiLe-Regular.ttf")
 const FROG_GAME_SCENE := "res://scenes/frog_river/frog_river.tscn"
@@ -33,25 +34,27 @@ func _build_ui() -> void:
 	subtitle.add_theme_color_override("font_color", Color(0.4, 0.5, 0.35))
 	add_child(subtitle)
 
-	var letter_btn := _level_button("第 1 关 · 字母", GameSession.FrogLevel.LETTERS, Vector2(220, 330))
-	var letter_desc := Label.new()
-	letter_desc.text = "随机出现的 26 个英文字母"
-	letter_desc.position = Vector2(220, 500)
-	letter_desc.size = Vector2(380, 30)
-	letter_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	letter_desc.add_theme_font_size_override("font_size", 24)
-	letter_desc.add_theme_color_override("font_color", Color(0.42, 0.52, 0.36))
-	add_child(letter_desc)
+	var row := MenuButtonRow.new()
+	row.position = Vector2(220, 330)
+	row.add_theme_constant_override("separation", 80)
+	row.setup([
+		{
+			"text": "第 1 关 · 字母",
+			"min_size": Vector2(380, 160),
+			"font_size": 42,
+			"action": func() -> void: _start_level(GameSession.FrogLevel.LETTERS),
+		},
+		{
+			"text": "第 2 关 · 单词",
+			"min_size": Vector2(380, 160),
+			"font_size": 42,
+			"action": func() -> void: _start_level(GameSession.FrogLevel.WORDS),
+		},
+	])
+	add_child(row)
 
-	var word_btn := _level_button("第 2 关 · 单词", GameSession.FrogLevel.WORDS, Vector2(680, 330))
-	var word_desc := Label.new()
-	word_desc.text = "外研社三年级英语词汇"
-	word_desc.position = Vector2(680, 500)
-	word_desc.size = Vector2(380, 30)
-	word_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	word_desc.add_theme_font_size_override("font_size", 24)
-	word_desc.add_theme_color_override("font_color", Color(0.42, 0.52, 0.36))
-	add_child(word_desc)
+	_add_desc("随机出现的 26 个英文字母", Vector2(220, 500))
+	_add_desc("外研社三年级英语词汇", Vector2(680, 500))
 
 	var back := Button.new()
 	back.text = "返回"
@@ -62,18 +65,36 @@ func _build_ui() -> void:
 		get_tree().change_scene_to_file(START_MENU_SCENE))
 	add_child(back)
 
+	var hint := Label.new()
+	hint.text = "A / D 或方向键选关 · 回车进入 · Esc 返回"
+	hint.position = Vector2(0, 660)
+	hint.size = Vector2(1280, 30)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 20)
+	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
+	add_child(hint)
 
-func _level_button(text: String, level: int, pos: Vector2) -> Button:
-	var btn := Button.new()
-	btn.text = text
-	btn.position = pos
-	btn.size = Vector2(380, 160)
-	btn.add_theme_font_size_override("font_size", 42)
-	btn.pressed.connect(func() -> void:
-		GameSession.frog_level = level
-		get_tree().change_scene_to_file(FROG_GAME_SCENE))
-	add_child(btn)
-	return btn
+
+func _add_desc(text: String, pos: Vector2) -> void:
+	var desc := Label.new()
+	desc.text = text
+	desc.position = pos
+	desc.size = Vector2(380, 30)
+	desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc.add_theme_font_size_override("font_size", 24)
+	desc.add_theme_color_override("font_color", Color(0.42, 0.52, 0.36))
+	add_child(desc)
+
+
+func _start_level(level: int) -> void:
+	GameSession.frog_level = level
+	get_tree().change_scene_to_file(FROG_GAME_SCENE)
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		get_tree().change_scene_to_file(START_MENU_SCENE)
 
 
 func _draw() -> void:

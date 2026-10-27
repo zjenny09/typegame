@@ -1,5 +1,6 @@
 extends Control
 ## 打雪球：关卡选择页（第 1 关字母 / 第 2 关单词）。
+## 全键盘操作：A/D、方向键切换关卡，回车进入，Esc 返回主菜单。
 
 const UI_FONT := preload("res://assets/fonts/ZCOOLKuaiLe-Regular.ttf")
 const SNOW_GAME_SCENE := "res://scenes/snowball/snow_fight.tscn"
@@ -33,9 +34,26 @@ func _build_ui() -> void:
 	subtitle.add_theme_color_override("font_color", Color(0.38, 0.45, 0.55))
 	add_child(subtitle)
 
-	var letter_btn := _level_button("第 1 关 · 字母", 1, Vector2(220, 330))
+	var row := MenuButtonRow.new()
+	row.position = Vector2(220, 330)
+	row.add_theme_constant_override("separation", 80)
+	row.setup([
+		{
+			"text": "第 1 关 · 字母",
+			"min_size": Vector2(380, 160),
+			"font_size": 42,
+			"action": func() -> void: _start_level(1),
+		},
+		{
+			"text": "第 2 关 · 单词",
+			"min_size": Vector2(380, 160),
+			"font_size": 42,
+			"action": func() -> void: _start_level(2),
+		},
+	])
+	add_child(row)
+
 	_add_desc("雪球约 8 秒落地 · 击碎 20 个获胜", Vector2(220, 500))
-	var word_btn := _level_button("第 2 关 · 单词", 2, Vector2(680, 330))
 	_add_desc("外研社三年级词汇 · 击碎 12 个获胜", Vector2(680, 500))
 
 	var back := Button.new()
@@ -46,6 +64,15 @@ func _build_ui() -> void:
 	back.pressed.connect(func() -> void:
 		get_tree().change_scene_to_file(START_MENU_SCENE))
 	add_child(back)
+
+	var hint := Label.new()
+	hint.text = "A / D 或方向键选关 · 回车进入 · Esc 返回"
+	hint.position = Vector2(0, 660)
+	hint.size = Vector2(1280, 30)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 20)
+	hint.add_theme_color_override("font_color", Color(0.45, 0.52, 0.62))
+	add_child(hint)
 
 
 func _add_desc(text: String, pos: Vector2) -> void:
@@ -59,30 +86,25 @@ func _add_desc(text: String, pos: Vector2) -> void:
 	add_child(desc)
 
 
-func _level_button(text: String, level: int, pos: Vector2) -> Button:
-	var btn := Button.new()
-	btn.text = text
-	btn.position = pos
-	btn.size = Vector2(380, 160)
-	btn.add_theme_font_size_override("font_size", 42)
-	btn.pressed.connect(func() -> void:
-		GameSession.snow_level = level
-		get_tree().change_scene_to_file(SNOW_GAME_SCENE))
-	add_child(btn)
-	return btn
+func _start_level(level: int) -> void:
+	GameSession.snow_level = level
+	get_tree().change_scene_to_file(SNOW_GAME_SCENE)
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		get_tree().change_scene_to_file(START_MENU_SCENE)
 
 
 func _draw() -> void:
 	draw_rect(Rect2(0, 0, 1280, 560), Color(0.84, 0.89, 0.94))
 	draw_circle(Vector2(1110, 96), 42, Color(1.0, 0.96, 0.85, 0.9))
-	# 远山
 	_draw_mountain(260.0, 560.0, 300.0)
 	_draw_mountain(900.0, 560.0, 380.0)
-	# 雪地
 	draw_rect(Rect2(0, 560, 1280, 160), Color(0.96, 0.97, 1.0))
 	for i in 10:
 		draw_circle(Vector2(i * 140.0 + 40.0, 572.0), 30.0, Color(0.96, 0.97, 1.0))
-	# 松树
 	_draw_tree(Vector2(140, 560))
 	_draw_tree(Vector2(1150, 560))
 

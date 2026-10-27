@@ -187,25 +187,18 @@ func _build_win_layer() -> void:
 	win_stats.add_theme_color_override("font_color", Color(0.35, 0.4, 0.32))
 	vbox.add_child(win_stats)
 
-	var buttons := HBoxContainer.new()
+	var buttons := MenuButtonRow.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
+	buttons.setup([
+		{"text": "再玩一次", "action": func() -> void: _start_level()},
+		{"text": "选关卡", "action": func() -> void: get_tree().change_scene_to_file(FROG_MENU_SCENE)},
+		{"text": "主菜单", "action": func() -> void: get_tree().change_scene_to_file(START_MENU_SCENE)},
+	])
 	vbox.add_child(buttons)
-	_win_button(buttons, "再玩一次", func() -> void: _start_level())
-	_win_button(buttons, "选关卡", func() -> void: get_tree().change_scene_to_file(FROG_MENU_SCENE))
-	_win_button(buttons, "主菜单", func() -> void: get_tree().change_scene_to_file(START_MENU_SCENE))
 
 	win_layer.visible = false
 	add_child(win_layer)
-
-
-func _win_button(parent: Container, text: String, action: Callable) -> void:
-	var btn := Button.new()
-	btn.text = text
-	btn.custom_minimum_size = Vector2(160, 60)
-	btn.add_theme_font_size_override("font_size", 30)
-	btn.pressed.connect(action)
-	parent.add_child(btn)
 
 
 func _update_hud() -> void:
