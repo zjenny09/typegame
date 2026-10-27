@@ -23,7 +23,12 @@
 	- [x] 雪球从顶部按节奏先后出现并匀速下落，同屏不超过 5 个，越打节奏越快
 	- [x] 输入自动匹配以其开头的雪球（匹配部分绿色高亮），打完整字母/单词即击碎
 	- [x] 多个相同目标击碎最低最危险的；接近地面红圈警示；任一雪球落地即失败
-- [ ] 小游戏四：敬请期待
+- [x] 小游戏四：记忆气球
+	- [x] 第 1 关 · 字母：看 2.5 秒 · 炸 20 个获胜，气球约 13 秒升顶
+	- [x] 第 2 关 · 单词：看 4 秒 · 炸 12 个获胜（外研社词汇，同屏词互不为前缀）
+	- [x] 气球从底部匀速升起，字母/单词显示数秒后淡出，凭记忆打出来
+	- [x] 输入自动匹配以其开头的气球（匹配进度只在顶部提示，不标在气球上）
+	- [x] 打对爆炸成彩色烟花；同屏不超过 5 个；任一气球飘出顶部即失败
 
 ## 运行
 
@@ -41,6 +46,7 @@ headless 全流程冒烟测试（模拟键盘通关字母关与单词关，含�
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_frog_river.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_cop_chase.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_snow_fight.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_balloon_pop.gd
 ```
 
 输出 `SMOKE PASS` 即通过，失败时以非 0 退出码结束。
@@ -50,8 +56,8 @@ Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_s
 需要已安装 Godot 4.7.2 导出模板。先确保输出目录存在（Godot 不会自动创建）：
 
 ```
-mkdir build/TypingParadise_v0.1.0_Windows_x64
-Godot_v4.7.2-stable_win64_console.exe --headless --path . --export-release "Windows Desktop" build/TypingParadise_v0.1.0_Windows_x64/TypingParadise.exe
+mkdir build/TypingParadise_v0.2.0_Windows_x64
+Godot_v4.7.2-stable_win64_console.exe --headless --path . --export-release "Windows Desktop" build/TypingParadise_v0.2.0_Windows_x64/TypingParadise.exe
 ```
 
 产物为内嵌资源的单文件便携 exe（`binary_format/embed_pck=true`）。
@@ -70,6 +76,9 @@ scenes/
   snowball/
     snow_fight_menu.tscn       打雪球 · 关卡选择
     snow_fight.tscn            打雪球 · 主玩法
+  memory_balloon/
+    balloon_pop_menu.tscn      记忆气球 · 关卡选择
+    balloon_pop.tscn           记忆气球 · 主玩法
 scripts/
   game_session.gd              跨场景会话状态（静态字段）
   word_bank.gd                 词库与随机抽词
@@ -83,10 +92,13 @@ scripts/
     cop_chase.gd               主玩法：匀速追逐 / 打对追一步 / 滚动镜头（自绘场景）
   snowball/
     snow_fight.gd              主玩法：节奏生成 / 自动匹配击碎 / 落地判负（自绘场景）
+  memory_balloon/
+    balloon_pop.gd             主玩法：记忆淡出 / 上升判负 / 烟花结算（自绘场景）
 tests/
   smoke_frog_river.gd          小青蛙过河 headless 冒烟测试
   smoke_cop_chase.gd           警察抓小偷 headless 冒烟测试
   smoke_snow_fight.gd          打雪球 headless 冒烟测试
+  smoke_balloon_pop.gd         记忆气球 headless 冒烟测试
 assets/fonts/                  ZCOOL KuaiLe（中文）、PatrickHand（拉丁字母），均 OFL 许可
 ```
 
@@ -115,6 +127,15 @@ assets/fonts/                  ZCOOL KuaiLe（中文）、PatrickHand（拉丁�
 - 打完整字母 / 单词即击碎；多个相同目标击碎位置最低（最危险）的那个
 - 单词关同屏词汇互不构成前缀，保证输入无歧义
 - 任一雪球落到雪地即失败；击碎目标数量（字母 20 / 单词 12）即胜利
+- 胜利按失误数结算星星（标准同前），失败不给星
+
+## 玩法规则（记忆气球）
+
+- 气球从底部匀速升起，上面的字母/单词显示数秒后淡出，气球继续上升
+- 直接敲键盘：输入序列自动匹配以其开头的气球；匹配进度只显示在顶部提示，气球上不标——凭记忆
+- 打完整字母/单词，气球爆炸成彩色烟花；多个相同目标炸最高（最接近顶部）的那个
+- 单词关同屏词汇互不构成前缀，保证输入无歧义
+- 任一气球飘出顶部即失败；炸够目标数量（字母 20 / 单词 12）即胜利
 - 胜利按失误数结算星星（标准同前），失败不给星
 
 ## 词库来源

@@ -6,12 +6,13 @@ const UI_FONT := preload("res://assets/fonts/ZCOOLKuaiLe-Regular.ttf")
 const FROG_MENU_SCENE := "res://scenes/frog_river/frog_river_menu.tscn"
 const COP_MENU_SCENE := "res://scenes/cops_robber/cop_chase_menu.tscn"
 const SNOW_MENU_SCENE := "res://scenes/snowball/snow_fight_menu.tscn"
+const BALLOON_MENU_SCENE := "res://scenes/memory_balloon/balloon_pop_menu.tscn"
 
 const GAMES: Array = [
 	{"title": "小青蛙过河", "subtitle": "字母与单词 · 两个关卡", "icon": "frog", "scene": FROG_MENU_SCENE, "available": true},
 	{"title": "警察抓小偷", "subtitle": "字母与单词 · 两个关卡", "icon": "badge", "scene": COP_MENU_SCENE, "available": true},
 	{"title": "打雪球", "subtitle": "字母与单词 · 两个关卡", "icon": "snow", "scene": SNOW_MENU_SCENE, "available": true},
-	{"title": "？？？", "subtitle": "敬请期待", "icon": "lock", "scene": "", "available": false},
+	{"title": "记忆气球", "subtitle": "字母与单词 · 两个关卡", "icon": "balloon", "scene": BALLOON_MENU_SCENE, "available": true},
 ]
 
 const STEP := TAU / 4.0
@@ -189,6 +190,8 @@ func _draw_card(index: int) -> void:
 			_draw_badge_icon(icon_center, s, alpha)
 		"snow":
 			_draw_snowflake_icon(icon_center, s, alpha)
+		"balloon":
+			_draw_balloon_icon(icon_center, s, alpha)
 		_:
 			_draw_lock_icon(icon_center, s, alpha)
 
@@ -259,6 +262,22 @@ func _draw_snowflake_icon(center: Vector2, s: float, alpha: float) -> void:
 		draw_line(base, base + dir.rotated(PI / 5.0) * 16.0 * s, col, 3.5 * s)
 		draw_line(base, base + dir.rotated(-PI / 5.0) * 16.0 * s, col, 3.5 * s)
 	draw_circle(center, 7.0 * s, col)
+
+
+func _draw_balloon_icon(center: Vector2, s: float, alpha: float) -> void:
+	var col := Color(0.9, 0.48, 0.58, alpha)
+	_draw_ellipse(center + Vector2(0, -6 * s), 36 * s, 44 * s, col)
+	_draw_ellipse(center + Vector2(-11 * s, -22 * s), 10 * s, 14 * s, Color(1, 1, 1, 0.75 * alpha))
+	draw_polygon(
+		PackedVector2Array([
+			center + Vector2(-7 * s, 38 * s),
+			center + Vector2(7 * s, 38 * s),
+			center + Vector2(0, 30 * s),
+		]),
+		PackedColorArray([col, col, col])
+	)
+	draw_line(center + Vector2(0, 38 * s), center + Vector2(6 * s, 74 * s),
+		Color(0.4, 0.4, 0.45, alpha), 2.5 * s)
 
 
 func _draw_lock_icon(center: Vector2, s: float, alpha: float) -> void:

@@ -12,7 +12,7 @@ config_version=5
 
 config/name="打字练习乐园"
 config/description="四个独立的打字练习小游戏：字母关与单词关。"
-config/version="0.1.0"
+config/version="0.2.0"
 run/main_scene="res://scenes/start_menu.tscn"
 config/features=PackedStringArray("4.7")
 config/icon="res://icon.svg"

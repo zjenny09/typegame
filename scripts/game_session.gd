@@ -14,3 +14,6 @@ static var cop_level: int = FrogLevel.LETTERS
 
 ## 打雪球当前选择的关卡（1 字母 / 2 单词）。
 static var snow_level: int = FrogLevel.LETTERS
+
+## 记忆气球当前选择的关卡（1 字母 / 2 单词）。
+static var balloon_level: int = FrogLevel.LETTERS
