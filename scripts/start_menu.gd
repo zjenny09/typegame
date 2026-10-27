@@ -26,6 +26,7 @@ const COLOR_BORDER_FRONT := Color(0.95, 0.69, 0.21)
 
 var selected := 0
 var wheel_angle := 0.0
+var target_angle := 0.0
 var toast_text := ""
 var toast_until_ms := 0
 
@@ -77,11 +78,16 @@ func _build_labels() -> void:
 	add_child(hint)
 
 
+func _rotate_to(index: int) -> void:
+	selected = index
+	# 转角永远走最短弧（±90°），避免跨圈扫过中间所有卡片
+	target_angle += wrapf(selected * STEP - target_angle, -PI, PI)
+
+
 func _process(delta: float) -> void:
-	var target := selected * STEP
-	wheel_angle = lerpf(wheel_angle, target, minf(1.0, delta * 10.0))
-	if absf(wheel_angle - target) < 0.0004:
-		wheel_angle = target
+	wheel_angle = lerpf(wheel_angle, target_angle, minf(1.0, delta * 10.0))
+	if absf(wheel_angle - target_angle) < 0.0004:
+		wheel_angle = target_angle
 	if toast_text != "" and Time.get_ticks_msec() > toast_until_ms:
 		toast_text = ""
 		toast_label.text = ""
@@ -108,17 +114,17 @@ func _gui_input(event: InputEvent) -> void:
 				if i == selected:
 					_activate()
 				else:
-					selected = i
+					_rotate_to(i)
 				return
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
-			KEY_LEFT, KEY_A:
-				selected = (selected + 1) % GAMES.size()
 			KEY_RIGHT, KEY_D:
-				selected = (selected + GAMES.size() - 1) % GAMES.size()
+				_rotate_to((selected + 1) % GAMES.size())
+			KEY_LEFT, KEY_A:
+				_rotate_to((selected + GAMES.size() - 1) % GAMES.size())
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
 				_activate()
 
