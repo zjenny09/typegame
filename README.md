@@ -45,6 +45,17 @@ Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_s
 
 输出 `SMOKE PASS` 即通过，失败时以非 0 退出码结束。
 
+## 导出 Windows 测试版
+
+需要已安装 Godot 4.7.2 导出模板。先确保输出目录存在（Godot 不会自动创建）：
+
+```
+mkdir build/TypingParadise_v0.1.0_Windows_x64
+Godot_v4.7.2-stable_win64_console.exe --headless --path . --export-release "Windows Desktop" build/TypingParadise_v0.1.0_Windows_x64/TypingParadise.exe
+```
+
+产物为内嵌资源的单文件便携 exe（`binary_format/embed_pck=true`）。
+
 ## 结构
 
 ```
