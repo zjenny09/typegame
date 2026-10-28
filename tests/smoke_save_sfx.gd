@@ -31,19 +31,19 @@ func _run() -> void:
 		DirAccess.remove_absolute(abs_path)
 	SaveStore.reload_from_disk()
 
-	_check(SaveStore.best("frog", 1).is_empty(), "空存档应无记录")
-	_check(SaveStore.record_result("frog", 1, 3, 52, 0), "首次记录应刷新最佳")
-	_check(not SaveStore.record_result("frog", 1, 2, 10, 0), "更低星不应覆盖最佳")
-	var b: Dictionary = SaveStore.best("frog", 1)
+	_check(SaveStore.best("frog", 1, 1).is_empty(), "空存档应无记录")
+	_check(SaveStore.record_result("frog", 1, 1, 3, 52, 0), "首次记录应刷新最佳")
+	_check(not SaveStore.record_result("frog", 1, 1, 2, 10, 0), "更低星不应覆盖最佳")
+	var b: Dictionary = SaveStore.best("frog", 1, 1)
 	_check(int(b.get("stars", 0)) == 3 and int(b.get("time", 0)) == 52,
 		"低星记录后最佳应保持 3 星 52 秒")
-	_check(SaveStore.record_result("frog", 1, 3, 40, 0), "同星更快应刷新最佳")
-	_check(int(SaveStore.best("frog", 1).get("time", 0)) == 40, "同星更快后用时应为 40 秒")
-	_check(SaveStore.record_result("cop", 1, 1, 70, 5), "另一游戏应独立记录")
-	_check(SaveStore.best("cop", 2).is_empty(), "未记录的关卡应无最佳")
+	_check(SaveStore.record_result("frog", 1, 1, 3, 40, 0), "同星更快应刷新最佳")
+	_check(int(SaveStore.best("frog", 1, 1).get("time", 0)) == 40, "同星更快后用时应为 40 秒")
+	_check(SaveStore.record_result("cop", 1, 1, 1, 70, 5), "另一游戏应独立记录")
+	_check(SaveStore.best("cop", 1, 2).is_empty(), "未记录的关卡应无最佳")
 	SaveStore.reload_from_disk()
-	_check(int(SaveStore.best("frog", 1).get("time", 0)) == 40, "存档应持久化到磁盘")
-	_check(int(SaveStore.best("cop", 1).get("stars", 0)) == 1, "cop 记录应持久化")
+	_check(int(SaveStore.best("frog", 1, 1).get("time", 0)) == 40, "存档应持久化到磁盘")
+	_check(int(SaveStore.best("cop", 1, 1).get("stars", 0)) == 1, "cop 记录应持久化")
 	if failed:
 		return
 

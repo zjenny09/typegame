@@ -32,6 +32,7 @@
 	- [x] 天花板悬停满 7 个气球才失败（整体超时）；场上气球总数上限 9 个
 
 - [x] 全局体验
+	- [x] 三档难度系统：每个游戏轻松 / 标准 / 挑战独立参数与独立最佳成绩
 	- [x] 程序化合成音效（打字、击碎/爆炸/烟花、错误、胜负、按钮，无外部素材零版权负担）
 	- [x] 本地存档（user://save.json）：每关最佳星级/用时，选关页与结算面板显示历史最佳
 	- [x] 全键盘操作：主菜单转卡、选关、结算，A/D + 方向键 + 回车 + Esc 全覆盖
@@ -63,8 +64,8 @@ Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_s
 需要已安装 Godot 4.7.2 导出模板。先确保输出目录存在（Godot 不会自动创建）：
 
 ```
-mkdir build/TypingParadise_v0.2.0_Windows_x64
-Godot_v4.7.2-stable_win64_console.exe --headless --path . --export-release "Windows Desktop" build/TypingParadise_v0.2.0_Windows_x64/TypingParadise.exe
+mkdir build/TypingParadise_v0.3.0_Windows_x64
+Godot_v4.7.2-stable_win64_console.exe --headless --path . --export-release "Windows Desktop" build/TypingParadise_v0.3.0_Windows_x64/TypingParadise.exe
 ```
 
 产物为内嵌资源的单文件便携 exe（`binary_format/embed_pck=true`）。

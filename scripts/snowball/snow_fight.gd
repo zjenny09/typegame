@@ -17,10 +17,20 @@ const SPAWN_Y := -60.0
 const MAX_ON_SCREEN := 5
 const LETTERS := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-# 关卡参数：目标击碎数 / 下落全程用时 / 生成间隔起点→终点（秒）/ 雪球半径
+# 关卡参数：[难度][关卡] → 目标击碎数 / 下落全程用时 / 生成间隔起点→终点（秒）/ 雪球半径
 const LEVEL_PARAMS := {
-	1: {"goal": 20, "fall_time": 8.2, "interval_from": 3.0, "interval_to": 2.0, "radius": 40.0},
-	2: {"goal": 12, "fall_time": 10.0, "interval_from": 5.0, "interval_to": 4.0, "radius": 52.0},
+	0: {
+		1: {"goal": 15, "fall_time": 10.0, "interval_from": 3.6, "interval_to": 2.6, "radius": 44.0},
+		2: {"goal": 10, "fall_time": 11.0, "interval_from": 5.6, "interval_to": 4.6, "radius": 52.0},
+	},
+	1: {
+		1: {"goal": 20, "fall_time": 8.2, "interval_from": 3.0, "interval_to": 2.0, "radius": 40.0},
+		2: {"goal": 12, "fall_time": 10.0, "interval_from": 5.0, "interval_to": 4.0, "radius": 52.0},
+	},
+	2: {
+		1: {"goal": 25, "fall_time": 6.8, "interval_from": 2.6, "interval_to": 1.7, "radius": 36.0},
+		2: {"goal": 14, "fall_time": 9.0, "interval_from": 4.4, "interval_to": 3.6, "radius": 48.0},
+	},
 }
 
 enum State { PLAYING, WON, LOST }
@@ -59,7 +69,7 @@ var result_stars: StarRow
 
 func _ready() -> void:
 	level = GameSession.snow_level
-	var params: Dictionary = LEVEL_PARAMS[level]
+	var params: Dictionary = LEVEL_PARAMS[GameSession.difficulty][level]
 	goal = params["goal"]
 	fall_time = params["fall_time"]
 	interval_from = params["interval_from"]
@@ -358,14 +368,14 @@ func _show_result(win: bool) -> void:
 		result_title.text = "守住啦！雪球全碎了！"
 		result_title.add_theme_color_override("font_color", Color(0.2, 0.55, 0.25))
 		result_stars.count = _star_count()
-		SaveStore.record_result(GAME_ID, level, result_stars.count, int(elapsed), mistakes)
+		SaveStore.record_result(GAME_ID, GameSession.difficulty, level, result_stars.count, int(elapsed), mistakes)
 		result_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
 	else:
 		result_title.text = "雪球砸到雪地了…"
 		result_title.add_theme_color_override("font_color", Color(0.75, 0.25, 0.2))
 		result_stars.count = 0
 		result_stats.text = "击碎 %d / %d 个 · 失误 %d 次" % [smashed, goal, mistakes]
-	var b := SaveStore.best(GAME_ID, level)
+	var b := SaveStore.best(GAME_ID, GameSession.difficulty, level)
 	if b.is_empty():
 		best_label.text = ""
 	else:

@@ -8,7 +8,7 @@ itch.io 是开放的独立游戏平台：注册即用、无上架费、无需版
 | 文件 | 用途 |
 |---|---|
 | `build/web/`（index.html 等 9 个文件） | 网页版：玩家点开链接直接玩，无需下载 |
-| `build/TypingParadise_v0.2.0_Windows_x64.zip` | Windows 版：下载后解压双击运行 |
+| `build/TypingParadise_v0.3.0_Windows_x64.zip` | Windows 版：下载后解压双击运行 |
 | `docs/itch_page.md` | 页面文案：标题/简介/描述可直接复制粘贴 |
 
 > 注意：网页版文件必须**整体打包成 zip 上传**（itch 会解包托管），
@@ -24,7 +24,7 @@ itch.io 是开放的独立游戏平台：注册即用、无上架费、无需版
    - Kind of project：先选 **HTML**（浏览器可玩），之后还能补充下载版
 4. **上传网页版**：Uploads 区上传 `web.zip` → 勾选
    `This file will be played in the browser`
-5. **上传 Windows 版**：再点 Upload uploads 上传 `TypingParadise_v0.2.0_Windows_x64.zip`，
+5. **上传 Windows 版**：再点 Upload uploads 上传 `TypingParadise_v0.3.0_Windows_x64.zip`，
    勾选 `Downloadable`（可选项，不勾也行）
 6. **页面内容**：把 `docs/itch_page.md` 里的描述复制进去，封面图随便截一张
    游戏画面（或用主菜单截图）

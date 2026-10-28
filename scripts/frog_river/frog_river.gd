@@ -16,15 +16,24 @@ const VIEW := Vector2(1280.0, 720.0)
 const BANK_W := 250.0
 const RIVER_LEFT := BANK_W
 const RIVER_RIGHT := VIEW.x - BANK_W
-const PAD_COUNT := 6
 const PAD_ROW_Y := 430.0
 const PAD_DY := 52.0
 const JUMP_DURATION := 0.5
 const LETTERS := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+# 难度参数：[难度][关卡] → 荷叶数 / 单词长度上限
+const LEVEL_PARAMS := {
+	0: {1: {"pads": 5, "max_len": 6}, 2: {"pads": 5, "max_len": 6}},
+	1: {1: {"pads": 6, "max_len": 8}, 2: {"pads": 6, "max_len": 8}},
+	2: {1: {"pads": 7, "max_len": 8}, 2: {"pads": 7, "max_len": 8}},
+}
+
 enum State { PLAYING, JUMPING, WON }
 
 var level := GameSession.FrogLevel.LETTERS
+var pad_count := 6
+var max_len := 8
+var pad_rx := 52.0
 var pads: Array = []  # {text, zh, x, y, done, flash, shake}
 var next_target := 0
 var typed_len := 0
@@ -55,6 +64,10 @@ var win_stars: StarRow
 
 func _ready() -> void:
 	level = GameSession.frog_level
+	var params: Dictionary = LEVEL_PARAMS[GameSession.difficulty][level]
+	pad_count = params["pads"]
+	max_len = params["max_len"]
+	pad_rx = minf(52.0, (RIVER_RIGHT - RIVER_LEFT) / (pad_count + 1.0) * 0.42)
 	var ui_theme := Theme.new()
 	ui_theme.default_font = UI_FONT
 	ui_theme.default_font_size = 24
@@ -78,11 +91,11 @@ func _start_level() -> void:
 		for ch in LETTERS:
 			pool.append(ch)
 		pool.shuffle()
-		for i in PAD_COUNT:
+		for i in pad_count:
 			_add_pad(pool[i], "")
 	else:
-		var entries := WordBank.pick_words(PAD_COUNT)
-		for i in PAD_COUNT:
+		var entries := WordBank.pick_words(pad_count, max_len)
+		for i in pad_count:
 			_add_pad(entries[i][0], entries[i][1])
 	frog_pos = Vector2(BANK_W * 0.5, PAD_ROW_Y)
 	hud_message.visible = false
@@ -212,7 +225,7 @@ func _build_win_layer() -> void:
 func _update_hud() -> void:
 	var level_name := "字母" if level == GameSession.FrogLevel.LETTERS else "单词"
 	hud_level.text = "小青蛙过河 · 第 %d 关（%s）" % [level, level_name]
-	hud_progress.text = "荷叶 %d / %d · 失误 %d" % [next_target, PAD_COUNT, mistakes]
+	hud_progress.text = "荷叶 %d / %d · 失误 %d" % [next_target, pad_count, mistakes]
 	if state == State.WON:
 		hud_prompt.text = "[center][color=#2e8b3a]到达对岸！[/color][/center]"
 		return
@@ -257,7 +270,7 @@ func _handle_char(c: String) -> void:
 			pad["done"] = true
 			Sfx.play("splash")
 			_update_hud()
-			_start_jump(Vector2(pad["x"], pad["y"]), next_target == PAD_COUNT - 1)
+			_start_jump(Vector2(pad["x"], pad["y"]), next_target == pad_count - 1)
 		else:
 			_update_hud()
 	else:
@@ -336,9 +349,9 @@ func _star_count() -> int:
 func _show_win() -> void:
 	win_layer.visible = true
 	win_stars.count = _star_count()
-	SaveStore.record_result(GAME_ID, level, win_stars.count, int(elapsed), mistakes)
+	SaveStore.record_result(GAME_ID, GameSession.difficulty, level, win_stars.count, int(elapsed), mistakes)
 	win_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
-	var b := SaveStore.best(GAME_ID, level)
+	var b := SaveStore.best(GAME_ID, GameSession.difficulty, level)
 	if b.is_empty():
 		best_label.text = ""
 	else:
@@ -392,14 +405,15 @@ func _draw_pads() -> void:
 		var done: bool = pad["done"]
 		var is_current: bool = i == next_target and state != State.WON
 		if is_current:
-			var halo_r := 64.0 + sin(time_acc * 5.0) * 5.0
+			var halo_r := pad_rx * 1.21 + sin(time_acc * 5.0) * 5.0
 			draw_arc(pos, halo_r, 0, TAU, 40, Color(1.0, 0.83, 0.2, 0.85), 5)
-		_draw_ellipse(pos + Vector2(0, 4), 56, 33, Color(0.16, 0.42, 0.2))
-		_draw_ellipse(pos, 53, 30, Color(0.45, 0.75, 0.42) if done else Color(0.27, 0.63, 0.29))
-		_draw_ellipse(pos + Vector2(-8, -6), 38, 19, Color(0.37, 0.72, 0.36, 0.9))
+		var f := pad_rx / 52.0
+		_draw_ellipse(pos + Vector2(0, 4 * f), 56 * f, 33 * f, Color(0.16, 0.42, 0.2))
+		_draw_ellipse(pos, 53 * f, 30 * f, Color(0.45, 0.75, 0.42) if done else Color(0.27, 0.63, 0.29))
+		_draw_ellipse(pos + Vector2(-8 * f, -6 * f), 38 * f, 19 * f, Color(0.37, 0.72, 0.36, 0.9))
 		var pts := PackedVector2Array([pos])
 		for a in [-0.05, 0.4]:
-			pts.push_back(pos + Vector2(cos(a) * 58, sin(a) * 34))
+			pts.push_back(pos + Vector2(cos(a) * 58 * f, sin(a) * 34 * f))
 		draw_colored_polygon(pts, Color(0.37, 0.69, 0.91))
 		var flash: float = pad["flash"]
 		if flash > 0.0:

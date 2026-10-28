@@ -26,11 +26,21 @@ const BALLOON_COLORS: Array = [
 	Color(0.75, 0.62, 0.92),
 ]
 
-# 关卡参数：目标炸球数 / 上升全程用时 / 文字显示时长（约半程，随后凭记忆）/
+# 关卡参数：[难度][关卡] → 目标炸球数 / 上升全程用时 / 文字显示时长（约半程，随后凭记忆）/
 #           生成间隔起点→终点（秒）/ 气球半径
 const LEVEL_PARAMS := {
-	1: {"goal": 20, "rise_time": 13.0, "display": 6.5, "interval_from": 3.2, "interval_to": 2.2, "radius": 44.0},
-	2: {"goal": 12, "rise_time": 15.0, "display": 7.5, "interval_from": 5.0, "interval_to": 4.0, "radius": 54.0},
+	0: {
+		1: {"goal": 15, "rise_time": 13.0, "display": 8.5, "interval_from": 3.6, "interval_to": 2.6, "radius": 44.0},
+		2: {"goal": 10, "rise_time": 15.0, "display": 9.0, "interval_from": 5.5, "interval_to": 4.5, "radius": 54.0},
+	},
+	1: {
+		1: {"goal": 20, "rise_time": 13.0, "display": 6.5, "interval_from": 3.2, "interval_to": 2.2, "radius": 44.0},
+		2: {"goal": 12, "rise_time": 15.0, "display": 7.5, "interval_from": 5.0, "interval_to": 4.0, "radius": 54.0},
+	},
+	2: {
+		1: {"goal": 25, "rise_time": 12.0, "display": 5.0, "interval_from": 2.8, "interval_to": 2.0, "radius": 40.0},
+		2: {"goal": 14, "rise_time": 14.0, "display": 6.0, "interval_from": 4.5, "interval_to": 3.6, "radius": 50.0},
+	},
 }
 
 const FW_LIFE := 1.1  # 烟花粒子寿命（秒）
@@ -73,7 +83,7 @@ var result_stars: StarRow
 
 func _ready() -> void:
 	level = GameSession.balloon_level
-	var params: Dictionary = LEVEL_PARAMS[level]
+	var params: Dictionary = LEVEL_PARAMS[GameSession.difficulty][level]
 	goal = params["goal"]
 	rise_time = params["rise_time"]
 	display_time = params["display"]
@@ -390,14 +400,14 @@ func _show_result(win: bool) -> void:
 		result_title.text = "满天烟花！"
 		result_title.add_theme_color_override("font_color", Color(0.2, 0.55, 0.25))
 		result_stars.count = _star_count()
-		SaveStore.record_result(GAME_ID, level, result_stars.count, int(elapsed), mistakes)
+		SaveStore.record_result(GAME_ID, GameSession.difficulty, level, result_stars.count, int(elapsed), mistakes)
 		result_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
 	else:
 		result_title.text = "天花板上挂满了…"
 		result_title.add_theme_color_override("font_color", Color(0.75, 0.25, 0.2))
 		result_stars.count = 0
 		result_stats.text = "炸掉 %d / %d 个 · 失误 %d 次" % [smashed, goal, mistakes]
-	var b := SaveStore.best(GAME_ID, level)
+	var b := SaveStore.best(GAME_ID, GameSession.difficulty, level)
 	if b.is_empty():
 		best_label.text = ""
 	else:

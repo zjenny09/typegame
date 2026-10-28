@@ -34,6 +34,20 @@ func _build_ui() -> void:
 	subtitle.add_theme_color_override("font_color", Color(0.4, 0.46, 0.52))
 	add_child(subtitle)
 
+	var diff_row := MenuButtonRow.new()
+	diff_row.position = Vector2(415, 246)
+	diff_row.add_theme_constant_override("separation", 24)
+	diff_row.sel = GameSession.difficulty
+	diff_row.setup([
+		{"text": "轻松", "min_size": Vector2(150, 52), "font_size": 26,
+			"action": func() -> void: GameSession.difficulty = GameSession.Difficulty.EASY},
+		{"text": "标准", "min_size": Vector2(150, 52), "font_size": 26,
+			"action": func() -> void: GameSession.difficulty = GameSession.Difficulty.NORMAL},
+		{"text": "挑战", "min_size": Vector2(150, 52), "font_size": 26,
+			"action": func() -> void: GameSession.difficulty = GameSession.Difficulty.HARD},
+	])
+	add_child(diff_row)
+
 	var row := MenuButtonRow.new()
 	row.position = Vector2(220, 330)
 	row.add_theme_constant_override("separation", 80)
@@ -89,7 +103,7 @@ func _add_desc(text: String, pos: Vector2) -> void:
 
 
 func _add_best(game_id: String, level: int, pos: Vector2) -> void:
-	var b := SaveStore.best(game_id, level)
+	var b := SaveStore.best(game_id, GameSession.difficulty, level)
 	if b.is_empty():
 		return
 	var label := Label.new()

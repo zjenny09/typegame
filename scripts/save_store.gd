@@ -22,15 +22,15 @@ static func reload_from_disk() -> void:
 		_data = parsed
 
 
-static func best(game_id: String, level: int) -> Dictionary:
-	var rec: Variant = _data["best"].get("%s_%d" % [game_id, level], {})
+static func best(game_id: String, difficulty: int, level: int) -> Dictionary:
+	var rec: Variant = _data["best"].get("%s_%d_%d" % [game_id, difficulty, level], {})
 	return rec if typeof(rec) == TYPE_DICTIONARY else {}
 
 
 ## 记录一次胜利结算。返回是否刷新个人最佳（星级更高，或同星用时更短）。
-static func record_result(game_id: String, level: int, stars: int, elapsed: int, mistakes: int) -> bool:
-	var key := "%s_%d" % [game_id, level]
-	var prev := best(game_id, level)
+static func record_result(game_id: String, difficulty: int, level: int, stars: int, elapsed: int, mistakes: int) -> bool:
+	var key := "%s_%d_%d" % [game_id, difficulty, level]
+	var prev := best(game_id, difficulty, level)
 	var better := prev.is_empty() \
 		or stars > int(prev.get("stars", 0)) \
 		or (stars == int(prev.get("stars", 0)) and elapsed < int(prev.get("time", 1 << 30)))

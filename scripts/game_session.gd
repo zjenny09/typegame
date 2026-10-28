@@ -6,6 +6,21 @@ enum FrogLevel {
 	WORDS = 2,
 }
 
+enum Difficulty {
+	EASY = 0,
+	NORMAL = 1,
+	HARD = 2,
+}
+
+const DIFFICULTY_KEYS := ["easy", "normal", "hard"]
+
+## 当前难度（0 轻松 / 1 标准 / 2 挑战），选关页设置，游戏内读取。
+static var difficulty: int = Difficulty.NORMAL
+
+
+static func difficulty_key() -> String:
+	return DIFFICULTY_KEYS[clampi(difficulty, 0, 2)]
+
 ## 小青蛙过河当前选择的关卡（1 字母 / 2 单词）。
 static var frog_level: int = FrogLevel.LETTERS
 

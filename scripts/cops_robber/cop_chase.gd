@@ -16,10 +16,20 @@ const SPACING := 150.0            # 每步的世界像素距离
 const ROAD_TOP := 440.0
 const ROAD_BOTTOM := 720.0
 
-# 关卡参数：小偷一步用时（秒）/ 警察起始落后步数 / 逃脱点步数
+# 关卡参数：[难度][关卡] → 小偷一步用时（秒）/ 警察起始落后步数 / 逃脱点步数
 const LEVEL_PARAMS := {
-	1: {"step_time": 2.4, "gap": 3, "track": 22},
-	2: {"step_time": 7.0, "gap": 2, "track": 11},
+	0: {
+		1: {"step_time": 3.0, "gap": 5, "track": 18},
+		2: {"step_time": 8.0, "gap": 3, "track": 9},
+	},
+	1: {
+		1: {"step_time": 2.4, "gap": 3, "track": 22},
+		2: {"step_time": 7.0, "gap": 2, "track": 11},
+	},
+	2: {
+		1: {"step_time": 1.9, "gap": 2, "track": 26},
+		2: {"step_time": 5.5, "gap": 2, "track": 13},
+	},
 }
 
 const LETTERS := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -62,7 +72,7 @@ var result_stars: StarRow
 
 func _ready() -> void:
 	level = GameSession.cop_level
-	var params: Dictionary = LEVEL_PARAMS[level]
+	var params: Dictionary = LEVEL_PARAMS[GameSession.difficulty][level]
 	step_time = params["step_time"]
 	gap_steps = params["gap"]
 	track_len = params["track"]
@@ -337,14 +347,14 @@ func _show_result(win: bool) -> void:
 		result_title.text = "抓到小偷啦！"
 		result_title.add_theme_color_override("font_color", Color(0.2, 0.55, 0.25))
 		result_stars.count = _star_count()
-		SaveStore.record_result(GAME_ID, level, result_stars.count, int(elapsed), mistakes)
+		SaveStore.record_result(GAME_ID, GameSession.difficulty, level, result_stars.count, int(elapsed), mistakes)
 		result_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
 	else:
 		result_title.text = "小偷跑掉了…"
 		result_title.add_theme_color_override("font_color", Color(0.75, 0.25, 0.2))
 		result_stars.count = 0
 		result_stats.text = "差 %d 步就追上了，再试一次吧！" % maxi(1, ceili(thief_steps - police_steps))
-	var b := SaveStore.best(GAME_ID, level)
+	var b := SaveStore.best(GAME_ID, GameSession.difficulty, level)
 	if b.is_empty():
 		best_label.text = ""
 	else:
