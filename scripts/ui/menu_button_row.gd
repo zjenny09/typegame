@@ -43,6 +43,7 @@ func setup(defs: Array) -> void:
 
 
 func _activate(index: int) -> void:
+	Sfx.play("click")
 	chosen.emit(index)
 	var action: Callable = _actions[index]
 	if action.is_valid():

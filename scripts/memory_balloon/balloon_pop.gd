@@ -10,6 +10,7 @@ const UI_FONT := preload("res://assets/fonts/ZCOOLKuaiLe-Regular.ttf")
 const LATIN_FONT := preload("res://assets/fonts/PatrickHand-Regular.ttf")
 const BALLOON_MENU_SCENE := "res://scenes/memory_balloon/balloon_pop_menu.tscn"
 const START_MENU_SCENE := "res://scenes/start_menu.tscn"
+const GAME_ID := "balloon"
 
 const VIEW := Vector2(1280.0, 720.0)
 const TOP_Y := 110.0
@@ -66,6 +67,7 @@ var hud_message: Label
 var result_layer: Control
 var result_title: Label
 var result_stats: Label
+var best_label: Label
 var result_stars: StarRow
 
 
@@ -270,6 +272,12 @@ func _build_result_layer() -> void:
 	result_stats.add_theme_color_override("font_color", Color(0.35, 0.4, 0.32))
 	vbox.add_child(result_stats)
 
+	best_label = Label.new()
+	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	best_label.add_theme_font_size_override("font_size", 22)
+	best_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.5))
+	vbox.add_child(best_label)
+
 	var buttons := MenuButtonRow.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
@@ -337,14 +345,17 @@ func _handle_char(c: String) -> void:
 	if best.is_empty():
 		mistakes += 1
 		typed = ""
+		Sfx.play("wrong")
 		_show_message("打错啦！重新输入")
 		_update_hud()
 		return
 	typed = prefix
+	Sfx.play("type")
 	if typed.length() == (best["text"] as String).length():
 		best["dead"] = true
 		smashed += 1
 		typed = ""
+		Sfx.play("firework")
 		_firework(Vector2(_ball_x(best), best["y"]))
 		hud_message.visible = false
 		if smashed >= goal:
@@ -368,18 +379,29 @@ func _firework(pos: Vector2) -> void:
 	particles.append({"pos": pos, "vel": Vector2.ZERO, "t": 0.0, "r": 16.0, "col": Color(1, 1, 1, 0.9), "ring": true})
 
 
+func _star_count() -> int:
+	return 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
+
+
 func _show_result(win: bool) -> void:
 	result_layer.visible = true
+	Sfx.play("win" if win else "lose")
 	if win:
 		result_title.text = "满天烟花！"
 		result_title.add_theme_color_override("font_color", Color(0.2, 0.55, 0.25))
-		result_stars.count = 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
+		result_stars.count = _star_count()
+		SaveStore.record_result(GAME_ID, level, result_stars.count, int(elapsed), mistakes)
 		result_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
 	else:
 		result_title.text = "天花板上挂满了…"
 		result_title.add_theme_color_override("font_color", Color(0.75, 0.25, 0.2))
 		result_stars.count = 0
 		result_stats.text = "炸掉 %d / %d 个 · 失误 %d 次" % [smashed, goal, mistakes]
+	var b := SaveStore.best(GAME_ID, level)
+	if b.is_empty():
+		best_label.text = ""
+	else:
+		best_label.text = "历史最佳：%d 秒 · %d 星" % [int(b.get("time", 0)), int(b.get("stars", 0))]
 	hud_message.visible = false
 	_update_hud()
 

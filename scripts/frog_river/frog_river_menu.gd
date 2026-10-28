@@ -55,6 +55,8 @@ func _build_ui() -> void:
 
 	_add_desc("随机出现的 26 个英文字母", Vector2(220, 500))
 	_add_desc("小学三年级英语核心词汇", Vector2(680, 500))
+	_add_best("frog", GameSession.FrogLevel.LETTERS, Vector2(220, 532))
+	_add_best("frog", GameSession.FrogLevel.WORDS, Vector2(680, 532))
 
 	var back := Button.new()
 	back.text = "返回"
@@ -84,6 +86,20 @@ func _add_desc(text: String, pos: Vector2) -> void:
 	desc.add_theme_font_size_override("font_size", 24)
 	desc.add_theme_color_override("font_color", Color(0.42, 0.52, 0.36))
 	add_child(desc)
+
+
+func _add_best(game_id: String, level: int, pos: Vector2) -> void:
+	var b := SaveStore.best(game_id, level)
+	if b.is_empty():
+		return
+	var label := Label.new()
+	label.text = "最佳 %d 星 · %d 秒" % [int(b.get("stars", 0)), int(b.get("time", 0))]
+	label.position = pos
+	label.size = Vector2(380, 26)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", Color(0.95, 0.62, 0.15))
+	add_child(label)
 
 
 func _start_level(level: int) -> void:

@@ -10,6 +10,7 @@ const LATIN_FONT := preload("res://assets/fonts/PatrickHand-Regular.ttf")
 const LATIN_FONT_TAG := "[font=res://assets/fonts/PatrickHand-Regular.ttf]"
 const FROG_MENU_SCENE := "res://scenes/frog_river/frog_river_menu.tscn"
 const START_MENU_SCENE := "res://scenes/start_menu.tscn"
+const GAME_ID := "frog"
 
 const VIEW := Vector2(1280.0, 720.0)
 const BANK_W := 250.0
@@ -48,6 +49,7 @@ var hud_prompt: RichTextLabel
 var hud_message: Label
 var win_layer: Control
 var win_stats: Label
+var best_label: Label
 var win_stars: StarRow
 
 
@@ -187,6 +189,12 @@ func _build_win_layer() -> void:
 	win_stats.add_theme_color_override("font_color", Color(0.35, 0.4, 0.32))
 	vbox.add_child(win_stats)
 
+	best_label = Label.new()
+	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	best_label.add_theme_font_size_override("font_size", 22)
+	best_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.5))
+	vbox.add_child(best_label)
+
 	var buttons := MenuButtonRow.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
@@ -243,9 +251,11 @@ func _handle_char(c: String) -> void:
 	if expected.to_lower() == c.to_lower():
 		typed_len += 1
 		hud_message.visible = false
+		Sfx.play("type")
 		if typed_len >= target.length():
 			typed_len = 0
 			pad["done"] = true
+			Sfx.play("splash")
 			_update_hud()
 			_start_jump(Vector2(pad["x"], pad["y"]), next_target == PAD_COUNT - 1)
 		else:
@@ -255,6 +265,7 @@ func _handle_char(c: String) -> void:
 		typed_len = 0
 		pad["flash"] = 0.7
 		pad["shake"] = 0.5
+		Sfx.play("wrong")
 		var hint_text := "打错啦！重新输入「%s」" % target
 		if level == GameSession.FrogLevel.WORDS and (pad["zh"] as String) != "":
 			hint_text += "（%s）" % pad["zh"]
@@ -318,10 +329,20 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+func _star_count() -> int:
+	return 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
+
+
 func _show_win() -> void:
 	win_layer.visible = true
-	win_stars.count = 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
+	win_stars.count = _star_count()
+	SaveStore.record_result(GAME_ID, level, win_stars.count, int(elapsed), mistakes)
 	win_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
+	var b := SaveStore.best(GAME_ID, level)
+	if b.is_empty():
+		best_label.text = ""
+	else:
+		best_label.text = "历史最佳：%d 秒 · %d 星" % [int(b.get("time", 0)), int(b.get("stars", 0))]
 	hud_message.visible = false
 	_update_hud()
 

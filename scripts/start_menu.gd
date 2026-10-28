@@ -35,6 +35,7 @@ var toast_label: Label
 
 
 func _ready() -> void:
+	SaveStore.reload_from_disk()
 	var ui_theme := Theme.new()
 	ui_theme.default_font = UI_FONT
 	ui_theme.default_font_size = 24
@@ -80,6 +81,9 @@ func _build_labels() -> void:
 
 
 func _rotate_to(index: int) -> void:
+	if index == selected:
+		return
+	Sfx.play("move")
 	selected = index
 	# 转角永远走最短弧（±90°），避免跨圈扫过中间所有卡片
 	target_angle += wrapf(selected * STEP - target_angle, -PI, PI)
@@ -133,8 +137,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _activate() -> void:
 	var game: Dictionary = GAMES[selected]
 	if game["available"]:
+		Sfx.play("confirm")
 		get_tree().change_scene_to_file(game["scene"])
 	else:
+		Sfx.play("wrong")
 		_show_toast("这个小游戏还没有做好，敬请期待！")
 
 

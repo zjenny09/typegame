@@ -9,6 +9,7 @@ const LATIN_FONT := preload("res://assets/fonts/PatrickHand-Regular.ttf")
 const LATIN_FONT_TAG := "[font=res://assets/fonts/PatrickHand-Regular.ttf]"
 const COP_MENU_SCENE := "res://scenes/cops_robber/cop_chase_menu.tscn"
 const START_MENU_SCENE := "res://scenes/start_menu.tscn"
+const GAME_ID := "cop"
 
 const VIEW := Vector2(1280.0, 720.0)
 const SPACING := 150.0            # 每步的世界像素距离
@@ -55,6 +56,7 @@ var hud_message: Label
 var result_layer: Control
 var result_title: Label
 var result_stats: Label
+var best_label: Label
 var result_stars: StarRow
 
 
@@ -217,6 +219,12 @@ func _build_result_layer() -> void:
 	result_stats.add_theme_color_override("font_color", Color(0.35, 0.4, 0.32))
 	vbox.add_child(result_stats)
 
+	best_label = Label.new()
+	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	best_label.add_theme_font_size_override("font_size", 22)
+	best_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.5))
+	vbox.add_child(best_label)
+
 	var buttons := MenuButtonRow.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 24)
@@ -291,6 +299,7 @@ func _handle_char(c: String) -> void:
 	if expected.to_lower() == c.to_lower():
 		typed_len += 1
 		hud_message.visible = false
+		Sfx.play("type")
 		if typed_len >= text.length():
 			typed_len = 0
 			target["done"] = true
@@ -298,6 +307,7 @@ func _handle_char(c: String) -> void:
 			police_from = police_steps
 			police_steps += 1.0
 			police_anim_t = 0.0
+			Sfx.play("step")
 			_update_hud()
 			if police_steps >= thief_steps - 0.0001:
 				state = State.WON
@@ -308,6 +318,7 @@ func _handle_char(c: String) -> void:
 		mistakes += 1
 		typed_len = 0
 		target["flash"] = 0.7
+		Sfx.play("wrong")
 		var hint_text := "打错啦！重新输入「%s」" % text
 		if level == 2 and (target["zh"] as String) != "":
 			hint_text += "（%s）" % target["zh"]
@@ -315,18 +326,29 @@ func _handle_char(c: String) -> void:
 		_update_hud()
 
 
+func _star_count() -> int:
+	return 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
+
+
 func _show_result(win: bool) -> void:
 	result_layer.visible = true
+	Sfx.play("win" if win else "lose")
 	if win:
 		result_title.text = "抓到小偷啦！"
 		result_title.add_theme_color_override("font_color", Color(0.2, 0.55, 0.25))
-		result_stars.count = 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
+		result_stars.count = _star_count()
+		SaveStore.record_result(GAME_ID, level, result_stars.count, int(elapsed), mistakes)
 		result_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
 	else:
 		result_title.text = "小偷跑掉了…"
 		result_title.add_theme_color_override("font_color", Color(0.75, 0.25, 0.2))
 		result_stars.count = 0
 		result_stats.text = "差 %d 步就追上了，再试一次吧！" % maxi(1, ceili(thief_steps - police_steps))
+	var b := SaveStore.best(GAME_ID, level)
+	if b.is_empty():
+		best_label.text = ""
+	else:
+		best_label.text = "历史最佳：%d 秒 · %d 星" % [int(b.get("time", 0)), int(b.get("stars", 0))]
 	hud_message.visible = false
 	_update_hud()
 

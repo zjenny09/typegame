@@ -31,6 +31,11 @@
 	- [x] 打对爆炸成彩色烟花；到顶的气球悬停在天花板上不再上升
 	- [x] 天花板悬停满 7 个气球才失败（整体超时）；场上气球总数上限 9 个
 
+- [x] 全局体验
+	- [x] 程序化合成音效（打字、击碎/爆炸/烟花、错误、胜负、按钮，无外部素材零版权负担）
+	- [x] 本地存档（user://save.json）：每关最佳星级/用时，选关页与结算面板显示历史最佳
+	- [x] 全键盘操作：主菜单转卡、选关、结算，A/D + 方向键 + 回车 + Esc 全覆盖
+
 ## 运行
 
 用 Godot 4.7.2 打开本目录（`project.godot`），或命令行：
@@ -48,6 +53,7 @@ Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_f
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_cop_chase.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_snow_fight.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_balloon_pop.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . -s res://tests/smoke_save_sfx.gd
 ```
 
 输出 `SMOKE PASS` 即通过，失败时以非 0 退出码结束。
@@ -83,7 +89,11 @@ scenes/
 scripts/
   game_session.gd              跨场景会话状态（静态字段）
   word_bank.gd                 词库与随机抽词
+  sfx.gd                       程序化音效合成器（静态类）
+  save_store.gd                本地存档（静态类，user://save.json）
   start_menu.gd
+  ui/
+    menu_button_row.gd         键盘+鼠标两用按钮行（选关页/结算面板共用）
   frog_river/
     frog_river_menu.gd
     frog_river.gd              主玩法：输入判定 / 跳跃 / 胜利结算（自绘场景）
