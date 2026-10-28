@@ -68,7 +68,7 @@ func _build_ui() -> void:
 	add_child(row)
 
 	_add_desc("文字看到半程 · 炸 20 个获胜", Vector2(220, 500))
-	_add_desc("小学三年级词汇 · 文字看到半程 · 炸 12 个获胜", Vector2(680, 500))
+	_add_desc("基础英语词汇 · 文字看到半程 · 炸 12 个获胜", Vector2(680, 500))
 	_add_best("balloon", 1, Vector2(220, 532))
 	_add_best("balloon", 2, Vector2(680, 532))
 
