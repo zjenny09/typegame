@@ -297,7 +297,7 @@ func _update_hud() -> void:
 		hud_prompt.text = "[center][color=#ffb3a7]天花板上挂满了！[/color][/center]"
 		return
 	if typed == "":
-		hud_prompt.text = "[center]记住气球上的字，飞走前打出来！[/center]"
+		hud_prompt.text = "[center]记住气球上的字，直接打出来炸烟花！[/center]"
 	else:
 		hud_prompt.text = "[center]已输入：%s[/center]" % typed
 

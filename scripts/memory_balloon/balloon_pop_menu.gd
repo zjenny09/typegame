@@ -26,7 +26,7 @@ func _build_ui() -> void:
 	add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "气球上的字母几秒后就会消失——记住它，在它飞走前打出来炸成烟花！"
+	subtitle.text = "气球上的字母几秒后就会淡出——记住它，把它打爆成满天烟花！"
 	subtitle.position = Vector2(0, 172)
 	subtitle.size = Vector2(1280, 36)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
