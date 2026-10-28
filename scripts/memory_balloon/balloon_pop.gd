@@ -25,10 +25,11 @@ const BALLOON_COLORS: Array = [
 	Color(0.75, 0.62, 0.92),
 ]
 
-# 关卡参数：目标炸球数 / 上升全程用时 / 文字显示时长 / 生成间隔起点→终点（秒）/ 气球半径
+# 关卡参数：目标炸球数 / 上升全程用时 / 文字显示时长（约半程，随后凭记忆）/
+#           生成间隔起点→终点（秒）/ 气球半径
 const LEVEL_PARAMS := {
-	1: {"goal": 20, "rise_time": 13.0, "display": 2.5, "interval_from": 3.2, "interval_to": 2.2, "radius": 44.0},
-	2: {"goal": 12, "rise_time": 15.0, "display": 4.0, "interval_from": 5.0, "interval_to": 4.0, "radius": 54.0},
+	1: {"goal": 20, "rise_time": 13.0, "display": 6.5, "interval_from": 3.2, "interval_to": 2.2, "radius": 44.0},
+	2: {"goal": 12, "rise_time": 15.0, "display": 7.5, "interval_from": 5.0, "interval_to": 4.0, "radius": 54.0},
 }
 
 const FW_LIFE := 1.1  # 烟花粒子寿命（秒）
