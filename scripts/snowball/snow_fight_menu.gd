@@ -54,7 +54,7 @@ func _build_ui() -> void:
 	add_child(row)
 
 	_add_desc("雪球约 8 秒落地 · 击碎 20 个获胜", Vector2(220, 500))
-	_add_desc("外研社三年级词汇 · 击碎 12 个获胜", Vector2(680, 500))
+	_add_desc("小学三年级词汇 · 击碎 12 个获胜", Vector2(680, 500))
 
 	var back := Button.new()
 	back.text = "返回"

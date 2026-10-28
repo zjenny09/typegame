@@ -54,7 +54,7 @@ func _build_ui() -> void:
 	add_child(row)
 
 	_add_desc("随机出现的 26 个英文字母", Vector2(220, 500))
-	_add_desc("外研社三年级英语词汇", Vector2(680, 500))
+	_add_desc("小学三年级英语核心词汇", Vector2(680, 500))
 
 	var back := Button.new()
 	back.text = "返回"
