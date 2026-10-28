@@ -14,7 +14,8 @@ const START_MENU_SCENE := "res://scenes/start_menu.tscn"
 const VIEW := Vector2(1280.0, 720.0)
 const TOP_Y := 110.0
 const SPAWN_Y := 660.0
-const MAX_ON_SCREEN := 5
+const SPAWN_CAP := 9      # 场上（飞行+悬停）气球总数上限
+const HOVER_LIMIT := 7    # 天花板悬停达到该数量即失败
 const LETTERS := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const BALLOON_COLORS: Array = [
 	Color(0.92, 0.5, 0.6),
@@ -125,6 +126,14 @@ func _active_count() -> int:
 	return n
 
 
+func _hover_count() -> int:
+	var n := 0
+	for b in balls:
+		if not b["dead"] and b["hover"]:
+			n += 1
+	return n
+
+
 func _rand_letter() -> String:
 	var ch := LETTERS[randi() % 26]
 	while ch == prev_letter:
@@ -159,7 +168,7 @@ func _spawn_ball() -> void:
 		"speed": (SPAWN_Y - TOP_Y) / rise_time,
 		"phase": randf() * TAU, "age": 0.0,
 		"color_idx": spawned_count % BALLOON_COLORS.size(),
-		"dead": false,
+		"hover": false, "dead": false,
 	})
 	spawned_count += 1
 
@@ -203,7 +212,7 @@ func _build_hud() -> void:
 	add_child(hud_message)
 
 	var hint := Label.new()
-	hint.text = "按键盘 A 到 Z 输入 · 炸整球才算 · 任一气球飞出顶部即失败 · Esc 返回选关"
+	hint.text = "按键盘 A 到 Z 输入 · 炸整球才算 · 天花板挂满 7 个气球才失败 · Esc 返回选关"
 	hint.position = Vector2(0, 688)
 	hint.size = Vector2(1280, 28)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -277,12 +286,14 @@ func _build_result_layer() -> void:
 func _update_hud() -> void:
 	var level_name := "字母" if level == 1 else "单词"
 	hud_level.text = "记忆气球 · 第 %d 关（%s）" % [level, level_name]
-	hud_progress.text = "已炸 %d / %d · 失误 %d" % [smashed, goal, mistakes]
+	hud_progress.text = "已炸 %d / %d · 挂顶 %d / %d · 失误 %d" % [
+		smashed, goal, _hover_count(), HOVER_LIMIT, mistakes,
+	]
 	if state == State.WON:
 		hud_prompt.text = "[center][color=#7fe08a]满天烟花！[/color][/center]"
 		return
 	if state == State.LOST:
-		hud_prompt.text = "[center][color=#ffb3a7]气球飞走了！[/color][/center]"
+		hud_prompt.text = "[center][color=#ffb3a7]天花板上挂满了！[/color][/center]"
 		return
 	if typed == "":
 		hud_prompt.text = "[center]记住气球上的字，飞走前打出来！[/center]"
@@ -364,7 +375,7 @@ func _show_result(win: bool) -> void:
 		result_stars.count = 3 if mistakes == 0 else (2 if mistakes <= 2 else 1)
 		result_stats.text = "用时 %d 秒 · 失误 %d 次" % [int(elapsed), mistakes]
 	else:
-		result_title.text = "气球飞走了…"
+		result_title.text = "天花板上挂满了…"
 		result_title.add_theme_color_override("font_color", Color(0.75, 0.25, 0.2))
 		result_stars.count = 0
 		result_stats.text = "炸掉 %d / %d 个 · 失误 %d 次" % [smashed, goal, mistakes]
@@ -390,19 +401,24 @@ func _process(delta: float) -> void:
 		spawn_timer += d
 		if spawn_timer >= _spawn_interval():
 			spawn_timer = 0.0
-			if _active_count() < MAX_ON_SCREEN:
+			if _active_count() < SPAWN_CAP:
 				_spawn_ball()
 		for b in balls:
 			if b["dead"]:
 				continue
 			b["age"] += d
+			if b["hover"]:
+				continue
 			b["y"] -= b["speed"] * d
 			if b["y"] <= TOP_Y:
-				b["dead"] = true
-				_firework(Vector2(_ball_x(b), b["y"]))
-				state = State.LOST
-				_show_result(false)
-				break
+				b["y"] = TOP_Y
+				b["hover"] = true
+				if _hover_count() >= HOVER_LIMIT:
+					_firework(Vector2(_ball_x(b), b["y"]))
+					state = State.LOST
+					_show_result(false)
+					break
+		_update_hud()
 	queue_redraw()
 
 
@@ -439,6 +455,8 @@ func _draw_balloons() -> void:
 		var bx := _ball_x(b)
 		var col: Color = BALLOON_COLORS[b["color_idx"]]
 		var danger := by < TOP_Y + 240.0
+		if b["hover"]:
+			by += sin(time_acc * 2.0 + b["phase"]) * 4.0
 		var spawn_alpha := clampf(float(b["age"]) / 0.35, 0.0, 1.0)
 		# 气球线
 		var line_top := Vector2(bx, by + radius * 1.22)

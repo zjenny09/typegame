@@ -86,14 +86,15 @@ func _run_idle_loss() -> void:
 	root.add_child(game)
 	await process_frame
 
-	# 不输入，时间加速 20 倍，等第一个气球飘出顶部（约 13s 模拟时间）
+	# 不输入，时间加速 20 倍，等天花板挂满 7 个气球
 	Engine.time_scale = 20.0
-	var deadline := Time.get_ticks_msec() + 15000
+	var deadline := Time.get_ticks_msec() + 30000
 	while game.state == game.State.PLAYING and Time.get_ticks_msec() < deadline:
 		await process_frame
 	Engine.time_scale = 10.0
-	_check(game.state == game.State.LOST, "气球飘出顶部应判失败")
-	_check(game.balls.size() <= 5, "生成的气球总数不应超过 5，实际 %d" % game.balls.size())
+	_check(game.state == game.State.LOST, "挂满 7 个悬停气球应判失败")
+	_check(game._hover_count() == 7, "失败时悬停气球应为 7 个，实际 %d" % game._hover_count())
+	_check(game.balls.size() <= 9, "生成的气球总数不应超过 9，实际 %d" % game.balls.size())
 	_check(game.result_layer.visible, "失败应显示结算界面")
 	game.queue_free()
 	await process_frame
